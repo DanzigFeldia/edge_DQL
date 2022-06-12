@@ -1,5 +1,3 @@
-import threading
-
 from keras.layers import Dense, Activation, Flatten
 from keras.models import Sequential
 from rl.agents.dqn import DQNAgent
@@ -16,13 +14,9 @@ https://www.section.io/engineering-education/building-a-reinforcement-learning-e
 
 
 def training():
-    ENV_NAME = 'CartPole-v0'
 
-    # Get the environment and extract the number of actions available in the Cartpole problem
-    # env = gym.make(ENV_NAME)
+    # Get the environment and extract the number of actions available
     env = BlackJack()
-    # np.random.seed(123)
-    # env.seed(123)
     nb_actions = env.action_space.n
 
     model = Sequential()
@@ -42,11 +36,14 @@ def training():
     dqn.compile(Adam(lr=1e-3), metrics=['mae'])
 
     # Okay, now it's time to learn something! We visualize the training here for show, but this slows down training quite a lot.
-    # dqn.fit(env, nb_steps=5000, visualize=True, verbose=2)
-    # dqn.save_weights("weight.h5", overwrite=True)
+    #dqn.fit(env, nb_steps=5000, visualize=True, verbose=2)
+    # We can save the weights for later uses
+    #dqn.save_weights("weight.h5", overwrite=True)
+
+    #If we already have weights
     dqn.load_weights("weight.h5")
-    dqn.test(env, nb_episodes=5, visualize=True)
+    dqn.test(env, nb_episodes=10001, visualize=True)
 
 
 if __name__ == "__main__":
-    threading.Thread(target=training, args=()).start()
+    training()

@@ -2,17 +2,16 @@ import random
 import socket
 import threading
 
-# import time
 from names import names
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.bind(("localhost", 4050))
-sock.setblocking(1)
+sock.setblocking(True)
 sock.listen(5)
 
 NBR_PLAYERS_NEEDED = 2
 
-active_player = 0
+
 
 resolving_game = False
 
@@ -39,7 +38,7 @@ nbr_players = 0
 
 
 def running():
-    global nbr_players, active_player, players, resolving_game
+    global nbr_players, players, resolving_game
     print("Main starting")
     cards = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11]
     while True:
@@ -59,12 +58,10 @@ def running():
                         waiting = False
 
                 try:
-
                     data2 = cnn.recv(4)
                     data = data2.decode()
                     print(data)
                     if data == "draw":
-
                         card = random.choice(cards)
                         cnn.send(str(len(str(card).encode())).encode())
                         cnn.send(str(card).encode())
@@ -126,12 +123,9 @@ def running():
                         raise Exception()
                     # render()
 
-
-
                 except:
                     return
 
-                active_player = (active_player + 1) % NBR_PLAYERS_NEEDED
 
 
 def render():

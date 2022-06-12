@@ -1,20 +1,19 @@
 import socket
-import threading
 
+import gym
 import numpy as np
 from gym.spaces import Box, Discrete
 
 
-class BlackJack():
-
+class BlackJack(gym.Env):
     def __init__(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.setblocking(1)
+        self.sock.setblocking(True)
         print("connecting")
         self.sock.connect((("localhost", 4050)))
         print("connected to {}".format(self.sock))
         self.action_space = Discrete(2)  # draw and stop
-        self.observation_space = Box(low=0, high=255, shape=(22,))
+        self.observation_space = Box(low=0, high=255, shape=(12,))
 
         self.sock.send(b"name")
         byte_size = int(self.sock.recv(1).decode())
@@ -27,11 +26,8 @@ class BlackJack():
         self.cards = []
         self.waiting = False
         for _ in range(2):
-            # draw 2 pog
-            # print("init")
             self.burnt = self.draw_a_card()
-            # time.sleep(0.1)
-        # print(f"{self.name} is starting with {self.cards}")
+
 
     def draw_a_card(self):
         # print("draw")
@@ -58,11 +54,10 @@ class BlackJack():
             # print("drawing a card")
             #    print("drawing, cards: {}".format(self.cards))
             self.burnt = self.draw_a_card()
-            reward = 0
             if not self.burnt:
-                done = False
+                self.waiting = False
             else:
-                done = True
+                self.waiting = True
         if self.waiting:  # we stop
             # print("waiting")
             self.sock.send(b"wait")
@@ -88,10 +83,11 @@ class BlackJack():
         # Setting the placeholder for info
         info = {}
 
+        #Formatting the state
+        state = np.pad(self.cards, (0, 12 - len(self.cards)))
+
         # Returning the step information
-        # to_return = np.array(self.cards)
-        # to_return.resize(22, )
-        return np.pad(self.cards, (0, 22 - len(self.cards))), reward, done, info
+        return state, reward, done, info
 
     def render(self, mode="human"):
         print("Player {} has those cards: {}".format(self.name, self.cards))
@@ -102,16 +98,9 @@ class BlackJack():
         self.waiting = False
         self.burnt = False
         self.sock.send(b"rese")
-        # ack = self.sock.recv(3)
-        # print(ack)
         for _ in range(2):
-            # draw 2 pog
-            #    print("reset")
             self.burnt = self.draw_a_card()
-            # time.sleep(0.1)
-        # to_return = np.array(self.cards)
-        # to_return.resize(22,)
-        return np.pad(self.cards, (0, 22 - len(self.cards)))
+        return np.pad(self.cards, (0, 12 - len(self.cards)))
 
     def get_BJ_score(self):
         return sum(self.cards)
@@ -126,7 +115,8 @@ class BlackJack():
 
 
 def main(env):
-    episodes = 20  # 20 blackjack
+    episodes = 10000  # 20 blackjack
+    totalWin=0
     for episode in range(1, episodes + 1):
 
         done = False
@@ -138,17 +128,13 @@ def main(env):
             score += reward
 
         print('Episode:{} Score:{}'.format(episode, score))
+        if score == 1:
+            totalWin+=1
         env.reset()
-    # env.clean_up()
+    print(totalWin)
 
-
+#Small script so we can test the envirronement. It just takes random action. We can keep track of the number of wins to compare with the trained agent.
 if __name__ == "__main__":
     env = BlackJack()
-    threading.Thread(target=main, args=(env,)).start()
+    main(env)
 
-    '''env1 = BlackJack()
-    env2 = BlackJack()
-    threading.Thread(target=main, args=(env1,)).start()
-    threading.Thread(target=main, args=(env2,)).start()'''
-
-    # CLOSE SOCKET ET VOIR AU NIVEAU DU SERVER
