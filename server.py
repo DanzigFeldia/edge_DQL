@@ -5,7 +5,7 @@ import threading
 from names import names
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.bind(("localhost", 4050))
+sock.bind(("0.0.0.0", 4050))
 sock.setblocking(True)
 sock.listen(5)
 

@@ -10,13 +10,14 @@ class BlackJack(gym.Env):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setblocking(True)
         print("connecting")
-        self.sock.connect((("localhost", 4050)))
+        self.sock.connect((("127.0.0.1", 4050)))
         print("connected to {}".format(self.sock))
         self.action_space = Discrete(2)  # draw and stop
         self.observation_space = Box(low=0, high=255, shape=(12,))
 
         self.sock.send(b"name")
-        byte_size = int(self.sock.recv(1).decode())
+        received = self.sock.recv(1).decode()
+        byte_size = int(received)
         print(byte_size)
         self.name = self.sock.recv(byte_size).decode()
         print(self.name)
