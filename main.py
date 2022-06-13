@@ -7,12 +7,6 @@ from tensorflow.keras.optimizers import Adam
 
 from customEnv import BlackJack
 
-"""
-Source:
-https://www.section.io/engineering-education/building-a-reinforcement-learning-environment-using-openai-gym/
-"""
-
-
 def training():
 
     # Get the environment and extract the number of actions available
